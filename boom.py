@@ -88,6 +88,18 @@ def add_kv_to_list(l, k, v):
 
     write_db()
 
+def fetch_value(l, k):
+
+    if l not in BOOMPY["metadata"]["buckets"]:
+        print "List doesn't exist, create it first"
+        return
+
+    if k not in BOOMPY["data"][l]["keys"]:
+        print "Key doesn't exist in list"
+        return
+
+    print BOOMPY["data"][l]["values"][k]
+
 def parse_and_do_job(args):
 
     if len(args) == 0:
@@ -118,8 +130,7 @@ def parse_and_do_job(args):
 
         elif len(args) == 2:
             key_to_fetch = args[1].lower()
-            print "prints out the value for key `%s` under `%s`" % (
-                    key_to_fetch, list_to_use)
+            fetch_value(list_to_use, key_to_fetch)
 
         elif len(args) == 3:
             key_to_create = args[1].lower()
