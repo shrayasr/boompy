@@ -73,6 +73,21 @@ def create_list(l):
 
     write_db()
 
+def add_kv_to_list(l, k, v):
+
+    global BOOMPY
+
+    if l not in BOOMPY["metadata"]["buckets"]:
+        print "List doesn't exist, create it first"
+        return
+
+    BOOMPY["data"][l]["values"][k] = v
+
+    if k not in BOOMPY["data"][l]["keys"]:
+        BOOMPY["data"][l]["keys"].append(k)
+
+    write_db()
+
 def parse_and_do_job(args):
 
     if len(args) == 0:
@@ -109,8 +124,7 @@ def parse_and_do_job(args):
         elif len(args) == 3:
             key_to_create = args[1].lower()
             value_to_assoc = args[2].lower()
-            print "Creates the key `%s` under the list `%s` with value `%s`" % (
-                    key_to_create, list_to_use, value_to_assoc)
+            add_kv_to_list(list_to_use, key_to_create, value_to_assoc)
 
 def write_db():
     with open(FILE_LOCATION, "w") as w:
