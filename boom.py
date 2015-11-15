@@ -103,6 +103,13 @@ def fetch_value(l, k):
 
     print BOOMPY["data"][l]["values"][k]
 
+def list_everything():
+    for bucket in BOOMPY["metadata"]["buckets"]:
+        print bucket
+        for key in BOOMPY["data"][bucket]["keys"]:
+            val = BOOMPY["data"][bucket]["values"][key]
+            print "  %s\t%s" % (key, val)
+
 def parse_and_do_job(args):
 
     if len(args) == 0:
@@ -112,7 +119,7 @@ def parse_and_do_job(args):
     cmd = args[0].lower()
 
     if cmd == "all":
-       print "List everything"
+       list_everything()
 
     elif cmd == "delete":
         if len(args) == 2 or len(args) == 3:
