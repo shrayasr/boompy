@@ -26,7 +26,8 @@ Commands:
     $ boom
         Shows available lists with the number of keys in them
     $ boom <list>
-        Creates the list <list>
+        Creates the list <list> if it doesn't exist or lists out the
+        contents of it if it does.
     $ boom <list> <key> <value>
         Creates the <key> under the list <list> with value <value>
     $ boom <list> <key>
@@ -57,21 +58,23 @@ def list_buckets_and_counts():
             bucket_keys = BOOMPY["data"][bucket]["keys"]
             print "%s (%s)" % (bucket, len(bucket_keys))
 
-def create_list(l):
+def create_list_or_print_contents(l):
 
     global BOOMPY
 
     if l in BOOMPY["metadata"]["buckets"]:
-        print "List already exists"
-        return
+        for key in BOOMPY["data"][l]["keys"]:
+            val = BOOMPY["data"][l]["values"][key]
+            print "%s\t%s" % (key, val)
 
-    BOOMPY["metadata"]["buckets"].append(l)
-    BOOMPY["data"][l] = {
-            "keys": [],
-            "values": {}
-            }
+    else:
+        BOOMPY["metadata"]["buckets"].append(l)
+        BOOMPY["data"][l] = {
+                "keys": [],
+                "values": {}
+                }
 
-    write_db()
+        write_db()
 
 def add_kv_to_list(l, k, v):
 
@@ -126,7 +129,7 @@ def parse_and_do_job(args):
         list_to_use = cmd
 
         if len(args) == 1:
-            create_list(list_to_use)
+            create_list_or_print_contents(list_to_use)
 
         elif len(args) == 2:
             key_to_fetch = args[1].lower()
