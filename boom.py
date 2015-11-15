@@ -129,6 +129,21 @@ def delete_key(l, k):
 
     write_db()
 
+def delete_list(l):
+
+    global BOOMPY
+
+    if l not in BOOMPY["metadata"]["buckets"]:
+        print "List doesn't exist, create it first"
+        return
+
+    bucket_idx = BOOMPY["metadata"]["buckets"].index(l)
+
+    del BOOMPY["data"][l]
+    del BOOMPY["metadata"]["buckets"][bucket_idx]
+
+    write_db()
+
 def parse_and_do_job(args):
 
     if len(args) == 0:
@@ -147,9 +162,7 @@ def parse_and_do_job(args):
                 key_to_del = args[2].lower()
                 delete_key(list_to_del, key_to_del)
             else:
-                print "Delete list `%s` and all its keys" % list_to_del
-        else:
-            print "Delete what?"
+                delete_list(list_to_del)
 
     else:
         list_to_use = cmd
