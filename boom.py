@@ -57,16 +57,32 @@ def list_buckets_and_counts():
             bucket_keys = BOOMPY["data"][bucket]["keys"]
             print "%s (%s)" % (bucket, len(bucket_keys))
 
+def create_list(l):
+
+    global BOOMPY
+
+    if l in BOOMPY["metadata"]["buckets"]:
+        print "List already exists"
+        return
+
+    BOOMPY["metadata"]["buckets"].append(l)
+    BOOMPY["data"][l] = {
+            "keys": [],
+            "values": {}
+            }
+
+    write_db()
+
 def parse_and_do_job(args):
 
     if len(args) == 0:
-        print "Shows available lists with the number of keys in them"
+        list_buckets_and_counts()
         return
 
     cmd = args[0].lower()
 
     if cmd == "all":
-        list_buckets_and_counts()
+       print "List everything"
 
     elif cmd == "delete":
         if len(args) == 2 or len(args) == 3:
@@ -83,7 +99,7 @@ def parse_and_do_job(args):
         list_to_use = cmd
 
         if len(args) == 1:
-            print "Creates the list `%s`" % list_to_use
+            create_list(list_to_use)
 
         elif len(args) == 2:
             key_to_fetch = args[1].lower()
@@ -96,7 +112,11 @@ def parse_and_do_job(args):
             print "Creates the key `%s` under the list `%s` with value `%s`" % (
                     key_to_create, list_to_use, value_to_assoc)
 
-def load_file():
+def write_db():
+    with open(FILE_LOCATION, "w") as w:
+        w.write(json.dumps(BOOMPY))
+
+def load_db():
 
     global BOOMPY
 
@@ -113,5 +133,5 @@ def load_file():
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    load_file()
+    load_db()
     parse_and_do_job(args)
