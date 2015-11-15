@@ -40,9 +40,22 @@ Commands:
 """
 
 import sys
+import os
 import json
 
 FILE_LOCATION="boompy.json"
+BOOMPY = {}
+
+def list_buckets_and_counts():
+    buckets = BOOMPY["metadata"]["buckets"]
+
+    if len(buckets) == 0:
+        print "No buckets created"
+
+    else:
+        for bucket in buckets:
+            bucket_keys = BOOMPY["data"][bucket]["keys"]
+            print "%s (%s)" % (bucket, len(bucket_keys))
 
 def parse_and_do_job(args):
 
@@ -53,10 +66,9 @@ def parse_and_do_job(args):
     cmd = args[0].lower()
 
     if cmd == "all":
-        print "List everything"
-        return
+        list_buckets_and_counts()
 
-    if cmd == "delete":
+    elif cmd == "delete":
         if len(args) == 2 or len(args) == 3:
             list_to_del = args[1].lower()
             if len(args) == 3:
@@ -66,26 +78,40 @@ def parse_and_do_job(args):
                 print "Delete list `%s` and all its keys" % list_to_del
         else:
             print "Delete what?"
-        return
 
-    if len(args) == 1:
-        list_to_create = args[0].lower()
-        print "Creates the list `%s`" % list_to_create
+    else:
+        list_to_use = cmd
 
-    elif len(args) == 2:
-        list_to_use = args[0].lower()
-        key_to_fetch = args[1].lower()
-        print "prints out the value for key `%s` under `%s`" % (
-                key_to_fetch, list_to_use)
+        if len(args) == 1:
+            print "Creates the list `%s`" % list_to_use
 
-    elif len(args) == 3:
-        list_to_use = args[0].lower()
-        key_to_create = args[1].lower()
-        value_to_assoc = args[2].lower()
-        print "Creates the key `%s` under the list `%s` with value `%s`" % (
-                key_to_create, list_to_use, value_to_assoc)
+        elif len(args) == 2:
+            key_to_fetch = args[1].lower()
+            print "prints out the value for key `%s` under `%s`" % (
+                    key_to_fetch, list_to_use)
 
+        elif len(args) == 3:
+            key_to_create = args[1].lower()
+            value_to_assoc = args[2].lower()
+            print "Creates the key `%s` under the list `%s` with value `%s`" % (
+                    key_to_create, list_to_use, value_to_assoc)
+
+def load_file():
+
+    global BOOMPY
+
+    if not os.path.isfile(FILE_LOCATION):
+        base_boompy_template = {
+                "metadata": { "buckets": [] },
+                "data": {}
+                }
+        with open(FILE_LOCATION, "w") as w:
+            w.write(json.dumps(base_boompy_template))
+
+    with open(FILE_LOCATION) as r:
+        BOOMPY = json.loads(r.read())
 
 if __name__ == "__main__":
     args = sys.argv[1:]
+    load_file()
     parse_and_do_job(args)
