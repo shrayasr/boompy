@@ -1,2 +1,5 @@
-*.swp
+build/
+boompy.egg-info/
 boompy.json
+build/
+dist/
