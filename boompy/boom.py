@@ -43,6 +43,7 @@ Commands:
 import sys
 import os
 import json
+import pyperclip
 
 FILE_LOCATION="boompy.json"
 BOOMPY = {}
@@ -101,7 +102,9 @@ def fetch_value(l, k):
         print "Key doesn't exist in list"
         return
 
-    print BOOMPY["data"][l]["values"][k]
+    value = BOOMPY["data"][l]["values"][k]
+    print "Copied %s to your clipboard!" % value
+    pyperclip.copy(value)
 
 def list_everything():
     for bucket in BOOMPY["metadata"]["buckets"]:

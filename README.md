@@ -17,7 +17,7 @@ Creates the `<key>` under the list `<list>` with value `<value>`
 
     $ boom <list> <key> <value>
 
-Prints out the value for the `<key>` under the `<list>`
+Prints out the value for the `<key>` under the `<list>` and copies it to the clipboard.
 
     $ boom <list> <key>
 
