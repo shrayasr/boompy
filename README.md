@@ -21,6 +21,14 @@ Prints out the value for the `<key>` under the `<list>` and copies it to the cli
 
     $ boom <list> <key>
 
+Opens the value for the `<key>` under the `<list>` in the browser.
+
+    $ boom <list> <key>
+
+Opens all the values under the `<list>` in the browser.
+
+    $ boom <list>
+
 Delete list `<list>` and all its keys
 
     $ boom delete <list>
