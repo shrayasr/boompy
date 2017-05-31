@@ -43,9 +43,26 @@ Commands:
 import sys
 import os
 import json
+import pyperclip
+import webbrowser
+from time import sleep
+from contextlib import contextmanager
 
 FILE_LOCATION="boompy.json"
 BOOMPY = {}
+
+@contextmanager
+def suppress_stdout():
+    with open(os.devnull, "w") as devnull:
+        old_stdout = sys.stdout
+        sys.stdout = devnull
+        old_stderr = sys.stderr
+        sys.stderr = devnull
+        try:  
+            yield
+        finally:
+            sys.stdout = old_stdout
+            sys.stderr = old_stderr
 
 def list_buckets_and_counts():
     buckets = BOOMPY["metadata"]["buckets"]
@@ -101,7 +118,9 @@ def fetch_value(l, k):
         print "Key doesn't exist in list"
         return
 
-    print BOOMPY["data"][l]["values"][k]
+    value = BOOMPY["data"][l]["values"][k]
+    print "Copied %s to your clipboard!" % value
+    pyperclip.copy(value)
 
 def list_everything():
     for bucket in BOOMPY["metadata"]["buckets"]:
@@ -144,6 +163,38 @@ def delete_list(l):
 
     write_db()
 
+def open_list(l):
+
+    global BOOMPY
+    urls_to_open = []
+
+    with suppress_stdout():
+        if l in BOOMPY["metadata"]["buckets"]:
+            for key in BOOMPY["data"][l]["keys"]:
+                val = BOOMPY["data"][l]["values"][key]
+                urls_to_open.append(val)
+            webbrowser.open(urls_to_open[0])
+            sleep(1)
+            for url in urls_to_open[1:]:
+                webbrowser.open_new_tab(url)
+            print "URLs have been opened."
+
+        else:
+            print "List doesn't exist, create it first"
+
+def open_key(l, k):
+
+    if l not in BOOMPY["metadata"]["buckets"]:
+        print "List doesn't exist, create it first"
+        return
+
+    if k not in BOOMPY["data"][l]["keys"]:
+        print "Key doesn't exist in list"
+        return
+
+    url = BOOMPY["data"][l]["values"][k]
+    webbrowser.open(url)
+
 def parse_and_do_job(args):
 
     if len(args) == 0:
@@ -163,6 +214,15 @@ def parse_and_do_job(args):
                 delete_key(list_to_del, key_to_del)
             else:
                 delete_list(list_to_del)
+
+    elif cmd == "open":
+        if len(args) == 2 or len(args) == 3:
+            list_to_open = args[1].lower()
+            if len(args) == 3:
+                key_to_open = args[2].lower()
+                open_key(list_to_open, key_to_open)
+            else:
+                open_list(list_to_open)
 
     else:
         list_to_use = cmd
